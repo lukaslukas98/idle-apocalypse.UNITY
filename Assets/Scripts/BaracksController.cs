@@ -7,27 +7,11 @@ using UnityEngine.UI;
 public class BaracksController : MonoBehaviour
 {
     [SerializeField]
-    GameObject baracksPanel;
-
-    //[SerializeField]
-    //TextMeshProUGUI T1SoldierCountText;
-    //[SerializeField]
-    //TextMeshProUGUI T1SoldiersPerSText;
-    //[SerializeField]
-    //TextMeshProUGUI T2SoldierCountText;
-    //[SerializeField]
-    //TextMeshProUGUI T2SoldiersPerSText;
-
-    [SerializeField]
     public GameObject unitListContainer;
     [SerializeField]
     GameObject unitFieldPrefab;
 
-    //float T1soldiers = 100;
-    //float T2soldiers = 0;
-
-    [SerializeField]
-    Button promoteButton;
+    static BaracksController controller1;
 
     public enum UnitType
     {
@@ -37,16 +21,16 @@ public class BaracksController : MonoBehaviour
 
     public class Unit
     {
-        BaracksController controller = new BaracksController();
+        BaracksController controller = controller1;
         UnitType type;
         public int tier;
         public int count;
         int incrementPerS;
         TextMeshProUGUI unitCountText;
         TextMeshProUGUI unitPerSText;
-        GameObject promoteUnit;
+        public Button promoteUnit;
 
-        public Unit(UnitType type, int tier, int count, int incrementPerS, TextMeshProUGUI unitCountText, TextMeshProUGUI unitPerSText, GameObject promoteUnit)
+        public Unit(UnitType type, int tier, int count, int incrementPerS, TextMeshProUGUI unitCountText, TextMeshProUGUI unitPerSText, Button promoteUnit)
         {
             this.type = type;
             this.tier = tier;
@@ -55,17 +39,21 @@ public class BaracksController : MonoBehaviour
             this.unitCountText = unitCountText;
             this.unitPerSText = unitPerSText;
             this.promoteUnit = promoteUnit;
+            promoteUnit.onClick.AddListener(() => controller.PromoteSoldiers(tier));
         }
 
         public void AddCount()
         {
             count += incrementPerS;
             UpdateCount();
+            controller.CheckPromoteButton(tier - 1);
         }
         public void AddCount(int amount)
         {
             count += amount;
             UpdateCount();
+            if(tier<controller.units.Count)
+            controller.CheckPromoteButton(tier - 1);
         }
 
         private void UpdateCount()
@@ -73,75 +61,48 @@ public class BaracksController : MonoBehaviour
             unitCountText.text = count.ToString();
         }
 
-        public void RecalculateIncrement(int higherTierCount)
+        public void UpdatePromoteButton(bool state)
         {
-            incrementPerS = higherTierCount / (tier*2 + 1)/3;
-            unitPerSText.text = "+" + incrementPerS.ToString() + "/s";
+            promoteUnit.interactable = state;
         }
 
-        public void PromoteSoldiers(int tier)
+        public void RecalculateIncrement(int higherTierCount)
         {
-            controller.AddSoldiers(-10, tier - 1);
-            controller.AddSoldiers(1, tier);
-            if ((tier * 2 + 1) * 3 - count < 0)
-            {
-               // ChangePromoteButton(true);
-            }
-            else
-            {
-              //  ChangePromoteButton(false);
-            }
+            incrementPerS = higherTierCount / 10;// (tier*2 + 1)/3;
+            unitPerSText.text = "+" + incrementPerS.ToString() + "/s";
         }
     }
 
     [SerializeField]
     List<Unit> units = new List<Unit>();
+    RectTransform unitListRectTransform;
 
     // Start is called before the first frame update
     void Start()
     {
-        GameObject unitField = Instantiate(unitFieldPrefab,new Vector2(unitListContainer.transform.position.x, unitListContainer.transform.position.y), unitListContainer.transform.rotation, unitListContainer.transform);
-        units.Add(new BaracksController.Unit(UnitType.Soldier,1,0,0, unitField.transform.GetChild(0).GetComponent<TextMeshProUGUI>(), unitField.transform.GetChild(1).GetComponent<TextMeshProUGUI>(), unitField.transform.GetChild(2).gameObject));
+        unitListRectTransform = unitListContainer.GetComponent<RectTransform>();
+        controller1 = this;
+        GameObject unitField = Instantiate(unitFieldPrefab,new Vector2(unitListContainer.transform.position.x, unitListContainer.transform.position.y+40), unitListContainer.transform.rotation, unitListContainer.transform);
+        units.Add(new BaracksController.Unit(UnitType.Soldier,1,0,0, unitField.transform.GetChild(0).GetComponent<TextMeshProUGUI>(), unitField.transform.GetChild(1).GetComponent<TextMeshProUGUI>(), unitField.transform.GetChild(2).GetComponent<Button>()));
+        units[0].promoteUnit.onClick.RemoveAllListeners();
+        units[0].promoteUnit.onClick.AddListener(() => units[0].AddCount(1));
+       // InstantiateNewTier(1);
         StartCoroutine("Increment");
     }
 
     public void InstantiateNewTier(int tier)
     {
-        GameObject unitField = Instantiate(unitFieldPrefab, new Vector2(unitListContainer.transform.position.x, unitListContainer.transform.position.y-(80*tier)), unitListContainer.transform.rotation, unitListContainer.transform);
-        units.Add(new BaracksController.Unit(UnitType.Soldier, tier+1, 0, 0, unitField.transform.GetChild(0).GetComponent<TextMeshProUGUI>(), unitField.transform.GetChild(1).GetComponent<TextMeshProUGUI>(), unitField.transform.GetChild(2).gameObject));
-        unitListContainer.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 100+(tier*80));
-        //unitListContainer.GetComponent<RectTransform>().
+        GameObject unitField = Instantiate(unitFieldPrefab, new Vector2(unitListContainer.transform.position.x, unitListContainer.transform.position.y-(30*tier+1)), unitListContainer.transform.rotation, unitListContainer.transform);
+        units.Add(new BaracksController.Unit(UnitType.Soldier, tier+1, 0, 0, unitField.transform.GetChild(0).GetComponent<TextMeshProUGUI>(), unitField.transform.GetChild(1).GetComponent<TextMeshProUGUI>(), unitField.transform.GetChild(2).GetComponent<Button>()));
+
+        unitListRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 120 + (tier * 70));
         unitField.GetComponent<TextMeshProUGUI>().text = "T"+(tier+1)+" Soldiers:";
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        baracksPanel.SetActive(true);
-    }
-
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        baracksPanel.SetActive(false);
     }
 
     public void PromoteSoldiers(int tier)
     {
-        AddSoldiers(-10,tier-1);
+        AddSoldiers(-(int)Mathf.Pow(2, tier), tier-1);
         AddSoldiers(1, tier);
-        if ((units[tier-1].tier * 2 + 1) * 3 - units[tier-1].count < 0)
-        {
-            ChangePromoteButton(true);
-        }
-        else
-        {
-            ChangePromoteButton(false);
-        }
     }
 
     IEnumerator Increment()
@@ -152,6 +113,8 @@ public class BaracksController : MonoBehaviour
             {
                 units[i].AddCount();
                 units[i].RecalculateIncrement(units[i + 1].count);
+                CheckPromoteButton(i);
+
             }
             CheckForNextTier(units[units.Count-1]);
             yield return new WaitForSeconds(1);
@@ -161,43 +124,31 @@ public class BaracksController : MonoBehaviour
 
     public void AddSoldiers(int amount, int tier)
     {
-        units[tier].AddCount(amount);
+        units[tier-1].AddCount(amount);
+    }
 
-        if ((units[tier].tier * 2 + 1) * 3 - units[tier].count < 0)
+    private void CheckPromoteButton(int tier)
+    {
+        if (Mathf.Pow(2, tier+2) - units[tier].count <= 0)
         {
-            ChangePromoteButton(true);
+            units[tier + 1].UpdatePromoteButton(true);
         }
         else
         {
-            ChangePromoteButton(false);
+            units[tier + 1].UpdatePromoteButton(false);
         }
-    }
-
-
-    public void AddSoldiers(int amount)
-    {
-        units[0].AddCount(amount);
-
-        if (units[0].count >= 10)
-        {
-            ChangePromoteButton(true);
-        }
-        else
-        {
-            ChangePromoteButton(false);
-        }
-    }
-
-    private void ChangePromoteButton(bool state)
-    {
-        promoteButton.interactable = state;
     }
 
     public void CheckForNextTier(Unit unit)
     {
-        if ((unit.tier * 2 + 1) * 3 - unit.count < 0)
+        if ((int)Mathf.Pow(2, unit.tier + 1) - unit.count <= 0 && unit.tier < 100)
         {
             InstantiateNewTier(unit.tier);
         }
+    }
+
+    public void debug()
+    {
+        Debug.Log(units.Count);
     }
 }

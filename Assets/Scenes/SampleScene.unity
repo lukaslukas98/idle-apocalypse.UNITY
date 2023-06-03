@@ -372,10 +372,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26aa0a7bc7dbf2545bb2f5485bf363dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baracksPanel: {fileID: 0}
   unitListContainer: {fileID: 0}
   unitFieldPrefab: {fileID: 0}
-  promoteButton: {fileID: 0}
 --- !u!58 &82470798
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -2206,8 +2204,8 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1919821944}
         m_TargetAssemblyTypeName: BaracksController, Assembly-CSharp
-        m_MethodName: AddSoldiers
-        m_Mode: 3
+        m_MethodName: debug
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -2947,10 +2945,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26aa0a7bc7dbf2545bb2f5485bf363dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baracksPanel: {fileID: 90154707}
   unitListContainer: {fileID: 1909579707}
   unitFieldPrefab: {fileID: 3690838808544413560, guid: 1af34a442900434448b4ae7c03efb508, type: 3}
-  promoteButton: {fileID: 557968966}
 --- !u!58 &1919821945
 CircleCollider2D:
   m_ObjectHideFlags: 0
