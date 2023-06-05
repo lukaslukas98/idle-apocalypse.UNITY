@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -43,30 +44,33 @@ public class BaracksController : MonoBehaviour
             this.unitCountText = unitCountText;
             this.unitPerSText = unitPerSText;
             this.promoteUnitButton = promoteUnitButton;
-            promoteUnitButton.onClick.AddListener(() => controller.PromoteSoldiers(tier-1));
+            promoteUnitButton.onClick.AddListener(() => controller.PromoteSoldiers(tier));
         }
 
         public void AddCountPerS()
         {
             count += incrementPerS;
             UpdateCount();
+            RecalculateIncrement(controller.units[tier+1].count);
+            if(tier!=0)
             controller.CheckPromoteButton(tier);
-            RecalculateIncrement(controller.units[tier].count);
         }
         public void AddCount(int amount)
         {
             count += amount;
             UpdateCount();
-            if(tier == controller.units.Count)
+            if(tier == controller.units.Count+1)
             {
                 controller.CheckForNextTier(this);
             }
-            if (tier < controller.units.Count)
+            if (tier < controller.units.Count - 1)
             {
                 Debug.Log("recalculated");
-                controller.CheckPromoteButton(tier);
-                RecalculateIncrement(controller.units[tier].count);
+                RecalculateIncrement(controller.units[tier+1].count);
+                controller.CheckPromoteButton(tier + 1);
             }
+            if (tier != 0)
+                controller.CheckPromoteButton(tier);
         }
 
         private void UpdateCount()
@@ -93,7 +97,8 @@ public class BaracksController : MonoBehaviour
         unitListRectTransform = unitListContainer.GetComponent<RectTransform>();
         controller1 = this;
         GameObject unitField = Instantiate(unitFieldPrefab,new Vector2(unitListContainer.transform.position.x, unitListContainer.transform.position.y+40), unitListContainer.transform.rotation, unitListContainer.transform);
-        units.Add(new BaracksController.Unit(UnitType.Soldier,1,0,0, unitField.transform.GetChild(0).GetComponent<TextMeshProUGUI>(), unitField.transform.GetChild(1).GetComponent<TextMeshProUGUI>(), unitField.transform.GetChild(2).GetComponent<Button>()));
+        units.Add(new BaracksController.Unit(UnitType.Soldier,0,0,0, unitField.transform.GetChild(0).GetComponent<TextMeshProUGUI>(), unitField.transform.GetChild(1).GetComponent<TextMeshProUGUI>(), unitField.transform.GetChild(2).GetComponent<Button>()));
+        unitField.GetComponent<TextMeshProUGUI>().text = "T1 Soldiers:"; 
         units[0].promoteUnitButton.onClick.RemoveAllListeners();
         units[0].promoteUnitButton.onClick.AddListener(() => units[0].AddCount(1));
         units[0].promoteUnitButton.transform.GetComponentInChildren<TextMeshProUGUI>().text = "Train";
@@ -102,11 +107,11 @@ public class BaracksController : MonoBehaviour
 
     public void InstantiateNewTier(int tier)
     {
-        GameObject unitField = Instantiate(unitFieldPrefab, new Vector2(unitListContainer.transform.position.x, unitListContainer.transform.position.y-(30*tier+1)), unitListContainer.transform.rotation, unitListContainer.transform);
+        GameObject unitField = Instantiate(unitFieldPrefab, new Vector2(unitListContainer.transform.position.x, unitListContainer.transform.position.y-(30*tier+30)), unitListContainer.transform.rotation, unitListContainer.transform);
         units.Add(new BaracksController.Unit(UnitType.Soldier, tier+1, 0, 0, unitField.transform.GetChild(0).GetComponent<TextMeshProUGUI>(), unitField.transform.GetChild(1).GetComponent<TextMeshProUGUI>(), unitField.transform.GetChild(2).GetComponent<Button>()));
 
-        unitListRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 120 + (tier * 70));
-        unitField.GetComponent<TextMeshProUGUI>().text = "T"+(tier+1)+" Soldiers:";
+        unitListRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 120 + ((tier+1) * 70));
+        unitField.GetComponent<TextMeshProUGUI>().text = "T"+(tier+2)+" Soldiers:";
     }
 
     public void PromoteSoldiers(int index)
@@ -119,7 +124,7 @@ public class BaracksController : MonoBehaviour
     {
         while (true)
         {
-            for(int i=0; i<units.Count-1; i++)
+            for(int i=0; i<units.Count-2; i++)
             {
                 units[i].AddCountPerS();
                 units[i].RecalculateIncrement(units[i + 1].count);
@@ -144,7 +149,7 @@ public class BaracksController : MonoBehaviour
 
     public void CheckForNextTier(Unit unit)
     {
-        if ((int)Mathf.Pow(2, unit.tier + 1) - unit.count <= 0 && unit.tier < 100)
+        if (PromotionCost(unit.tier+1) - unit.count <= 0 && unit.tier < 100)
         {
             InstantiateNewTier(unit.tier);
         }
