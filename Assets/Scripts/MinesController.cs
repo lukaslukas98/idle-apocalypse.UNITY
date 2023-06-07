@@ -6,14 +6,16 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class BaracksController : MonoBehaviour
+public class MinesController : MonoBehaviour
 {
     [SerializeField]
     public GameObject unitListContainer;
     [SerializeField]
     GameObject unitFieldPrefab;
 
-    static BaracksController controller1;
+    static MinesController mineController;
+
+    ResourceController resourceController;
 
     List<Unit> units = new List<Unit>();
     RectTransform unitListRectTransform;
@@ -26,7 +28,7 @@ public class BaracksController : MonoBehaviour
 
     public class Unit
     {
-        BaracksController controller = controller1;
+        MinesController controller = mineController;
         UnitType type;
         public int tier;
         public int count;
@@ -61,7 +63,7 @@ public class BaracksController : MonoBehaviour
             UpdateCount();
             if(tier == controller.units.Count+1)
             {
-                controller.CheckForNextTier(this);
+                controller.CheckForNextTier();
             }
             if (tier < controller.units.Count - 1)
             {
@@ -70,6 +72,9 @@ public class BaracksController : MonoBehaviour
             }
             if (tier != 0)
                 controller.CheckPromoteButton(tier);
+
+            controller.CheckForNextTier(); 
+            ResourceController.resourceController.CheckForNextTier(ResourceController.resourceController.resources[ResourceController.resourceController.resources.Count - 1]);
         }
 
         private void UpdateCount()
@@ -93,11 +98,12 @@ public class BaracksController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        resourceController = ResourceController.resourceController;
         unitListRectTransform = unitListContainer.GetComponent<RectTransform>();
-        controller1 = this;
+        mineController = this;
         GameObject unitField = Instantiate(unitFieldPrefab,new Vector2(unitListContainer.transform.position.x, unitListContainer.transform.position.y+40), unitListContainer.transform.rotation, unitListContainer.transform);
-        units.Add(new BaracksController.Unit(UnitType.Soldier,0,0,0, unitField.transform.GetChild(0).GetComponent<TextMeshProUGUI>(), unitField.transform.GetChild(1).GetComponent<TextMeshProUGUI>(), unitField.transform.GetChild(2).GetComponent<Button>()));
-        unitField.GetComponent<TextMeshProUGUI>().text = "T1 Soldiers:";
+        units.Add(new MinesController.Unit(UnitType.Miner,0,0,0, unitField.transform.GetChild(0).GetComponent<TextMeshProUGUI>(), unitField.transform.GetChild(1).GetComponent<TextMeshProUGUI>(), unitField.transform.GetChild(2).GetComponent<Button>()));
+        unitField.GetComponent<TextMeshProUGUI>().text = "T1 Miners:";
         units[0].promoteUnitButton.onClick.RemoveAllListeners();
         units[0].promoteUnitButton.onClick.AddListener(() => units[0].AddCount(1));
         units[0].promoteUnitButton.transform.GetComponentInChildren<TextMeshProUGUI>().text = "Train";
@@ -107,15 +113,15 @@ public class BaracksController : MonoBehaviour
     public void InstantiateNewTier(int tier)
     {
         GameObject unitField = Instantiate(unitFieldPrefab, new Vector2(unitListContainer.transform.position.x, unitListContainer.transform.position.y-(30*tier)), unitListContainer.transform.rotation, unitListContainer.transform);
-        units.Add(new BaracksController.Unit(UnitType.Soldier, tier, 0, 0, unitField.transform.GetChild(0).GetComponent<TextMeshProUGUI>(), unitField.transform.GetChild(1).GetComponent<TextMeshProUGUI>(), unitField.transform.GetChild(2).GetComponent<Button>()));
+        units.Add(new MinesController.Unit(UnitType.Miner, tier, 0, 0, unitField.transform.GetChild(0).GetComponent<TextMeshProUGUI>(), unitField.transform.GetChild(1).GetComponent<TextMeshProUGUI>(), unitField.transform.GetChild(2).GetComponent<Button>()));
 
         unitListRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 120 + ((tier) * 70));
-        unitField.GetComponent<TextMeshProUGUI>().text = "T"+(tier+1)+" Soldiers:";
+        unitField.GetComponent<TextMeshProUGUI>().text = "T"+(tier+1)+ " Miners:";
     }
 
     public void PromoteSoldiers(int index)
     {
-        units[index - 1].AddCount(-PromotionCost(index));
+        //units[index - 1].AddCount(-PromotionCost(index));
         units[index].AddCount(1);
     }
 
@@ -123,13 +129,13 @@ public class BaracksController : MonoBehaviour
     {
         while (true)
         {
-            for(int i=0; i<units.Count-2; i++)
+            for(int i=0; i<units.Count; i++)
             {
-                units[i].AddCountPerS();
-                units[i].RecalculateIncrement(units[i + 1].count);
-
+                //  units[i].AddCountPerS();
+                //  units[i].RecalculateIncrement(units[i + 1].count);
+                resourceController.resources[i].AddCount(units[i].count);
+             //   resourceController.resources[i].RecalculateIncrement(resourceController.resources[i+1].count);
             }
-            CheckForNextTier(units[units.Count-1]);
             yield return new WaitForSeconds(1);
         }
     }
@@ -146,11 +152,13 @@ public class BaracksController : MonoBehaviour
         }
     }
 
-    public void CheckForNextTier(Unit unit)
+    public void CheckForNextTier()
     {
+        Unit unit = mineController.units[mineController.units.Count - 1];
         if (PromotionCost(unit.tier+1) - unit.count <= 0 && unit.tier < 100)
         {
             InstantiateNewTier(unit.tier+1);
+            resourceController.InstantiateNewTier(unit.tier + 1);
         }
     }
 

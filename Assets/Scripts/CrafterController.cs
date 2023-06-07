@@ -6,14 +6,14 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class BaracksController : MonoBehaviour
+public class CrafterController : MonoBehaviour
 {
     [SerializeField]
     public GameObject unitListContainer;
     [SerializeField]
     GameObject unitFieldPrefab;
 
-    static BaracksController controller1;
+    static CrafterController controller3;
 
     List<Unit> units = new List<Unit>();
     RectTransform unitListRectTransform;
@@ -21,12 +21,13 @@ public class BaracksController : MonoBehaviour
     public enum UnitType
     {
         Soldier,
-        Miner
+        Miner,
+        Crafter
     }
 
     public class Unit
     {
-        BaracksController controller = controller1;
+        CrafterController controller = controller3;
         UnitType type;
         public int tier;
         public int count;
@@ -94,10 +95,10 @@ public class BaracksController : MonoBehaviour
     void Start()
     {
         unitListRectTransform = unitListContainer.GetComponent<RectTransform>();
-        controller1 = this;
+        controller3 = this;
         GameObject unitField = Instantiate(unitFieldPrefab,new Vector2(unitListContainer.transform.position.x, unitListContainer.transform.position.y+40), unitListContainer.transform.rotation, unitListContainer.transform);
-        units.Add(new BaracksController.Unit(UnitType.Soldier,0,0,0, unitField.transform.GetChild(0).GetComponent<TextMeshProUGUI>(), unitField.transform.GetChild(1).GetComponent<TextMeshProUGUI>(), unitField.transform.GetChild(2).GetComponent<Button>()));
-        unitField.GetComponent<TextMeshProUGUI>().text = "T1 Soldiers:";
+        units.Add(new CrafterController.Unit(UnitType.Crafter, 0,0,0, unitField.transform.GetChild(0).GetComponent<TextMeshProUGUI>(), unitField.transform.GetChild(1).GetComponent<TextMeshProUGUI>(), unitField.transform.GetChild(2).GetComponent<Button>()));
+        unitField.GetComponent<TextMeshProUGUI>().text = "T1 Crafters:";
         units[0].promoteUnitButton.onClick.RemoveAllListeners();
         units[0].promoteUnitButton.onClick.AddListener(() => units[0].AddCount(1));
         units[0].promoteUnitButton.transform.GetComponentInChildren<TextMeshProUGUI>().text = "Train";
@@ -107,10 +108,10 @@ public class BaracksController : MonoBehaviour
     public void InstantiateNewTier(int tier)
     {
         GameObject unitField = Instantiate(unitFieldPrefab, new Vector2(unitListContainer.transform.position.x, unitListContainer.transform.position.y-(30*tier)), unitListContainer.transform.rotation, unitListContainer.transform);
-        units.Add(new BaracksController.Unit(UnitType.Soldier, tier, 0, 0, unitField.transform.GetChild(0).GetComponent<TextMeshProUGUI>(), unitField.transform.GetChild(1).GetComponent<TextMeshProUGUI>(), unitField.transform.GetChild(2).GetComponent<Button>()));
+        units.Add(new CrafterController.Unit(UnitType.Crafter, tier, 0, 0, unitField.transform.GetChild(0).GetComponent<TextMeshProUGUI>(), unitField.transform.GetChild(1).GetComponent<TextMeshProUGUI>(), unitField.transform.GetChild(2).GetComponent<Button>()));
 
         unitListRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 120 + ((tier) * 70));
-        unitField.GetComponent<TextMeshProUGUI>().text = "T"+(tier+1)+" Soldiers:";
+        unitField.GetComponent<TextMeshProUGUI>().text = "T"+(tier+1)+ " Crafters:";
     }
 
     public void PromoteSoldiers(int index)
