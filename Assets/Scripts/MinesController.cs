@@ -98,7 +98,6 @@ public class MinesController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        resourceController = ResourceController.resourceController;
         unitListRectTransform = unitListContainer.GetComponent<RectTransform>();
         mineController = this;
         GameObject unitField = Instantiate(unitFieldPrefab,new Vector2(unitListContainer.transform.position.x, unitListContainer.transform.position.y+40), unitListContainer.transform.rotation, unitListContainer.transform);
@@ -107,6 +106,12 @@ public class MinesController : MonoBehaviour
         units[0].promoteUnitButton.onClick.RemoveAllListeners();
         units[0].promoteUnitButton.onClick.AddListener(() => units[0].AddCount(1));
         units[0].promoteUnitButton.transform.GetComponentInChildren<TextMeshProUGUI>().text = "Train";
+        Invoke("LateStart",0.1f);
+    }
+
+    public void LateStart()
+    {
+        resourceController = ResourceController.resourceController;
         StartCoroutine("Increment");
     }
 
@@ -125,7 +130,7 @@ public class MinesController : MonoBehaviour
         units[index].AddCount(1);
     }
 
-    IEnumerator Increment()
+    public IEnumerator Increment()
     {
         while (true)
         {

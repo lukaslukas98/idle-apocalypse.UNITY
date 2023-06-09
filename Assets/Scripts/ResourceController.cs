@@ -86,7 +86,7 @@ public class ResourceController : MonoBehaviour
         resources.Add(new ResourceController.Resource(tier, 0, 0, resourceField.transform.GetChild(0).GetComponent<TextMeshProUGUI>(), resourceField.transform.GetChild(1).GetComponent<TextMeshProUGUI>()));
 
         resourceListRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 120 + ((tier) * 70));
-        resourceField.GetComponent<TextMeshProUGUI>().text = "T" + (tier + 1) + " Miners:";
+        resourceField.GetComponent<TextMeshProUGUI>().text = "T" + (tier + 1) + " Resources:";
     }
 
     //IEnumerator Increment()
