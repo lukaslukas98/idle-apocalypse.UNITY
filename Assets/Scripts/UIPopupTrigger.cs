@@ -5,15 +5,15 @@ using UnityEngine;
 public class UIPopupTrigger : MonoBehaviour
 {
     [SerializeField]
-    GameObject baracksPanel;
+    GameObject panel;
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        baracksPanel.SetActive(true);
+        panel.SetActive(true);
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        baracksPanel.SetActive(false);
+        panel.SetActive(false);
     }
 }
