@@ -68,7 +68,7 @@ public class BarracksController : MonoBehaviour
     {
         while (true)
         {
-            for(int i=0; i<units.Count-2; i++)
+            for(int i=0; i<units.Count-1; i++)
             {
                 units[i].AddCountPerS(units[i+1].count);
                 units[i].RecalculateIncrement(units[i + 1].count);

@@ -54,13 +54,12 @@ public class Unit : MonoBehaviour
     }
     public void AddCount(int amount, int lastTierUnlocked)
     {
-        count += amount+100;
+        count += amount;
         UpdateCount();
-        if ( tier > 1)
-        {
+
           //  RecalculateIncrement(higherTierCount);
             CheckPromoteButton(tier);
-        }
+        
      //   if (tier > 1)
          //   CheckPromoteButton(tier-1);
     }
@@ -83,14 +82,18 @@ public class Unit : MonoBehaviour
 
     public void CheckPromoteButton(int previousTier)
     {
-       // Debug.Log("Previous tier index:"+ previousTier+" Count:"+ BarracksController.units[previousTier].count);
-        if (promotionCost - BarracksController.units[tier-1].count <= 0)
+        // Debug.Log("Previous tier index:"+ previousTier+" Count:"+ BarracksController.units[previousTier].count);
+       // Debug.Log(tier);
+        if (tier != 0)
         {
-            UpdatePromoteButton(true);
-        }
-        else
-        {
-            UpdatePromoteButton(false);
+            if (promotionCost - BarracksController.units[tier - 1].count <= 0)
+            {
+                UpdatePromoteButton(true);
+            }
+            else
+            {
+                UpdatePromoteButton(false);
+            }
         }
     }
 
