@@ -6,7 +6,7 @@ public class ToggleDetailsPanelScript : MonoBehaviour
 {
     public void ToggleDetailsPanel(GameObject panel)
     {
-        if(panel.active)
+        if(panel.activeSelf)
         panel.SetActive(false);
         else
             panel.SetActive(true);

@@ -56,10 +56,8 @@ public class BarracksController : MonoBehaviour
     {
         units[index - 1].AddCount(-PromotionCost(index), units.Count);
         units[index].AddCount(1, units.Count);
-        Debug.Log(index + " total count" + units.Count);
         if(units.Count > index+1)
         {
-            Debug.Log("checked");
             units[index + 1].CheckPromoteButton(index);
         }
     }
